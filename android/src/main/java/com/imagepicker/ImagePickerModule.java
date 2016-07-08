@@ -232,7 +232,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
         cameraIntent.putExtra("crop", "true");
         cameraIntent.putExtra("aspectX", aspectX);
         cameraIntent.putExtra("aspectY", aspectY);
-        cameraIntent.setType("image/*");
+        //cameraIntent.setType("image/*");
       }
     }
 
