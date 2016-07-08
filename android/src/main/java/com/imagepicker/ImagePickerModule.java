@@ -235,14 +235,22 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
       }
     }
 
+    boolean retError = false;
+
     //try catch this entire portion, for Samsung Galaxy S5 or others which crash
     try {
-      if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) == null) {
+      if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) != null) {
         mCallback = callback;
         currentActivity.startActivityForResult(cameraIntent, requestCode);
+      } else {
+        retError = true;
       }
     } catch (ActivityNotFoundException e) {
       e.printStackTrace();
+      retError = true;
+    }
+
+    if (retError) {
       response = Arguments.createMap();
       response.putString("error", "Cannot launch camera");
       callback.invoke(response);
