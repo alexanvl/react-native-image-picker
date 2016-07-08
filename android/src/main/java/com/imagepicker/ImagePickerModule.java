@@ -232,20 +232,15 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
         cameraIntent.putExtra("crop", "true");
         cameraIntent.putExtra("aspectX", aspectX);
         cameraIntent.putExtra("aspectY", aspectY);
-        //cameraIntent.setType("image/*");
       }
     }
 
-    if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) == null) {
-      response.putString("error", "Cannot launch camera");
-      callback.invoke(response);
-      return;
-    }
-
-    mCallback = callback;
-
+    //try catch this entire portion, for Samsung Galaxy S5 or others which crash
     try {
-      currentActivity.startActivityForResult(cameraIntent, requestCode);
+      if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) == null) {
+        mCallback = callback;
+        currentActivity.startActivityForResult(cameraIntent, requestCode);
+      }
     } catch (ActivityNotFoundException e) {
       e.printStackTrace();
       response = Arguments.createMap();
