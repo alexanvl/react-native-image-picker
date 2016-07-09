@@ -226,7 +226,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
       // we create a tmp file to save the result
       File imageFile = createNewFile(true);
       mCameraCaptureURI = Uri.fromFile(imageFile);
-      cameraIntent.setDataAndType(Uri.fromFile(imageFile), "image/*");
+      cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
 
       if (allowEditing == true) {
         cameraIntent.putExtra("crop", "true");
