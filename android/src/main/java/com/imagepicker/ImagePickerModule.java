@@ -236,11 +236,11 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
     }
 
     boolean retError = false;
+    mCallback = callback;
 
     //try catch this entire portion, for Samsung Galaxy S5 or others which crash
     try {
       if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) != null) {
-        mCallback = callback;
         currentActivity.startActivityForResult(cameraIntent, requestCode);
       } else {
         retError = true;
