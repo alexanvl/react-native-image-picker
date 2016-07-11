@@ -237,7 +237,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
         cameraIntent.putExtra("aspectX", aspectX);
         cameraIntent.putExtra("aspectY", aspectY);
         //here comes the hax
-        if (manufacturer == "samsung" && model == "sm-g900p") {
+        if (manufacturer.equalsIgnoreCase("samsung") && model.equalsIgnoreCase("sm-g900p")) {
           cameraIntent.setType("image/jpg");
         }
       }
