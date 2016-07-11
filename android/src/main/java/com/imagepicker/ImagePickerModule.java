@@ -223,6 +223,10 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
       requestCode = REQUEST_LAUNCH_IMAGE_CAPTURE;
       cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
+      //device specific hackery
+      String manufacturer = android.os.Build.MANUFACTURER.toLowerCase(Locale.ENGLISH);
+      String model = android.os.Build.MODEL.toLowerCase(Locale.ENGLISH);
+      //System.out.println("GRAB "+manufacturer+" "+model);
       // we create a tmp file to save the result
       File imageFile = createNewFile(true);
       mCameraCaptureURI = Uri.fromFile(imageFile);
@@ -232,6 +236,10 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
         cameraIntent.putExtra("crop", "true");
         cameraIntent.putExtra("aspectX", aspectX);
         cameraIntent.putExtra("aspectY", aspectY);
+        //here comes the hax
+        if (manufacturer == "samsung" && model == "sm-g900p") {
+          cameraIntent.setType("image/jpg");
+        }
       }
     }
 
@@ -240,12 +248,16 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
 
     //try catch this entire portion, for Samsung Galaxy S5 or others which crash
     try {
+      //System.out.println("GRAB attempting resolveActivity");
       if (cameraIntent.resolveActivity(mReactContext.getPackageManager()) != null) {
+        //System.out.println("GRAB attempting startActivityForResult");
         currentActivity.startActivityForResult(cameraIntent, requestCode);
       } else {
+        //System.out.println("GRAB resolveActivity null");
         retError = true;
       }
     } catch (ActivityNotFoundException e) {
+      //System.out.println("GRAB exception!");
       e.printStackTrace();
       retError = true;
     }
@@ -319,10 +331,12 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
 
   @Override
   public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    //System.out.println("GRAB onActivityResult init");
     //robustness code
     if (mCallback == null || (mCameraCaptureURI == null && requestCode == REQUEST_LAUNCH_IMAGE_CAPTURE)
             || (requestCode != REQUEST_LAUNCH_IMAGE_CAPTURE && requestCode != REQUEST_LAUNCH_IMAGE_LIBRARY
             && requestCode != REQUEST_LAUNCH_VIDEO_LIBRARY && requestCode != REQUEST_LAUNCH_VIDEO_CAPTURE)) {
+      //System.out.println("GRAB onActivityResult failed init");
       return;
     }
 
@@ -334,11 +348,12 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
       mCallback.invoke(response);
       return;
     }
-
+    //System.out.println("GRAB got request code "+requestCode);
     Uri uri;
     switch (requestCode) {
       case REQUEST_LAUNCH_IMAGE_CAPTURE:
         uri = mCameraCaptureURI;
+        //System.out.println("GRAB onActivityResult got uri"+uri.toString());
         break;
       case REQUEST_LAUNCH_IMAGE_LIBRARY:
         if (mCropImagedUri != null) {
@@ -396,6 +411,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
 
     int CurrentAngle = 0;
     try {
+      //System.out.println("GRAB ExifInterface try");
       ExifInterface exif = new ExifInterface(realPath);
 
       // extract lat, long, and timestamp and add to the response
@@ -415,6 +431,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
       isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
       try {
+        //System.out.println("GRAB isoFormatString try");
         String isoFormatString = isoFormat.format(exifDatetimeFormat.parse(timestamp)) + "Z";
         response.putString("timestamp", isoFormatString);
       } catch (Exception e) {}
@@ -436,6 +453,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
       }
       response.putBoolean("isVertical", isVertical);
     } catch (IOException e) {
+      //System.out.println("GRAB onActivityResult exception exiting interface?");
       e.printStackTrace();
       response.putString("error", e.getMessage());
       mCallback.invoke(response);
@@ -447,7 +465,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
     Bitmap photo = BitmapFactory.decodeFile(realPath, options);
     int initialWidth = options.outWidth;
     int initialHeight = options.outHeight;
-
+    //System.out.println("GRAB attempt some form of fuckery");
     // don't create a new file if contraint are respected
     if (((initialWidth < maxWidth && maxWidth > 0) || maxWidth == 0)
             && ((initialHeight < maxHeight && maxHeight > 0) || maxHeight == 0)
