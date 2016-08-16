@@ -68,10 +68,12 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
         }
 
         // Add custom buttons to action sheet
-        if ([self.options objectForKey:@"customButtons"] && [[self.options objectForKey:@"customButtons"] isKindOfClass:[NSDictionary class]]) {
+        if ([self.options objectForKey:@"customButtons"] && [[self.options objectForKey:@"customButtons"] isKindOfClass:[NSArray class]]) {
             self.customButtons = [self.options objectForKey:@"customButtons"];
-            for (NSString *key in self.customButtons) {
-                UIAlertAction *customAction = [UIAlertAction actionWithTitle:key style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+            for (NSDictionary *custom in self.customButtons) {
+                NSString *key = [custom valueForKey:@"key"];
+                NSString *value = [custom valueForKey:@"value"];
+                UIAlertAction *customAction = [UIAlertAction actionWithTitle:value style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
                     [self actionHandler:action];
                 }];
                 [self.alertController addAction:customAction];
@@ -149,10 +151,14 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
 - (void)actionHandler:(UIAlertAction *)action
 {
     // If button title is one of the keys in the customButtons dictionary return the value as a callback
-    NSString *customButtonStr = [self.customButtons objectForKey:action.title];
-    if (customButtonStr) {
-        self.callback(@[@{@"customButton": customButtonStr}]);
-        return;
+    for (NSDictionary *custom in self.customButtons) {
+        NSString *key = [custom valueForKey:@"key"];
+        NSString *value = [custom valueForKey:@"value"];
+        //NSString *customButtonStr = [self.customButtons objectForKey:];
+        if ([value isEqualToString:action.title]) {
+            self.callback(@[@{@"customButton": key}]);
+            return;
+        }
     }
 
     if ([action.title isEqualToString:[self.options valueForKey:@"takePhotoButtonTitle"]]) { // Take photo
@@ -219,7 +225,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
     }
     self.picker.modalPresentationStyle = UIModalPresentationCurrentContext;
     self.picker.delegate = self;
-    
+
     // Check permissions
     void (^showPickerViewController)() = ^void() {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -230,14 +236,14 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             [root presentViewController:self.picker animated:YES completion:nil];
         });
     };
-    
+
     if (target == RNImagePickerTargetCamera) {
         [self checkCameraPermissions:^(BOOL granted) {
             if (!granted) {
                 self.callback(@[@{@"error": @"Camera permissions not granted"}]);
                 return;
             }
-            
+
             showPickerViewController();
         }];
     }
@@ -247,7 +253,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
                 self.callback(@[@{@"error": @"Photo library permissions not granted"}]);
                 return;
             }
-            
+
             showPickerViewController();
         }];
     }
@@ -480,7 +486,7 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
         callback(YES);
         return;
     }
-    
+
     PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
     if (status == PHAuthorizationStatusAuthorized) {
         callback(YES);
