@@ -28,6 +28,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
 
@@ -122,22 +123,22 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
 
     String cancelButtonTitle = options.getString("cancelButtonTitle");
     if (options.hasKey("customButtons")) {
-      ReadableMap buttons = options.getMap("customButtons");
+      ReadableArray buttons = options.getArray("customButtons");
       if (buttons != null) {
-        ReadableMapKeySetIterator it = buttons.keySetIterator();
-        // Keep the current size as the iterator returns the keys in the reverse order they are defined
-        int currentIndex = titles.size();
-        while (it.hasNextKey()) {
-          String key = it.nextKey();
-
-          titles.add(currentIndex, key);
-          actions.add(currentIndex, buttons.getString(key));
+        for (int i = 0; i < buttons.size(); ++i) {
+          ReadableMap custom = buttons.getMap(i);
+          String key = custom.getString("key");
+          String value = custom.getString("value");
+          int currentIndex = titles.size();
+          titles.add(currentIndex, value);
+          actions.add(currentIndex, key);
         }
       }
     }
 
-    titles.add(cancelButtonTitle);
-    actions.add("cancel");
+    //no cancel for android
+    //titles.add(cancelButtonTitle);
+    //actions.add("cancel");
 
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(currentActivity,
             android.R.layout.select_dialog_item, titles);
