@@ -17,7 +17,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.util.Base64;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.webkit.MimeTypeMap;
 import android.content.pm.PackageManager;
 
@@ -140,8 +143,24 @@ public class ImagePickerModule extends ReactContextBaseJavaModule implements Act
     //titles.add(cancelButtonTitle);
     //actions.add("cancel");
 
+    // Create an ArrayAdapter from List
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(currentActivity,
-            android.R.layout.select_dialog_item, titles);
+            android.R.layout.select_dialog_item, titles){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                /// Get the Item from ListView
+                View view = super.getView(position, convertView, parent);
+
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+
+                float textSize=(float)16.0;
+                textView.setTextSize(textSize);
+
+                // Return the view
+                return view;
+            }
+        };
+
     AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
     if (options.hasKey("title") && options.getString("title") != null && !options.getString("title").isEmpty()) {
       builder.setTitle(options.getString("title"));
