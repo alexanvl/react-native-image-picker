@@ -21,10 +21,9 @@ export default class App extends React.Component {
 
   selectPhotoTapped() {
     const options = {
-      quality: 0.5,
-      maxWidth: 300,
-      maxHeight: 300,
-      allowsEditing: false,
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
       storageOptions: {
         skipBackup: true
       }
@@ -46,14 +45,14 @@ export default class App extends React.Component {
         var source;
 
         // You can display the image using either:
-        source = {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true};
+        //source = {uri: 'data:image/jpeg;base64,' + response.data, isStatic: true};
 
-        // Or:
-        // if (Platform.OS === 'android') {
-        //   source = {uri: response.uri, isStatic: true};
-        // } else {
-        //   source = {uri: response.uri.replace('file://', ''), isStatic: true};
-        // }
+        //Or:
+        if (Platform.OS === 'android') {
+          source = {uri: response.uri, isStatic: true};
+        } else {
+          source = {uri: response.uri.replace('file://', ''), isStatic: true};
+        }
 
         this.setState({
           avatarSource: source
