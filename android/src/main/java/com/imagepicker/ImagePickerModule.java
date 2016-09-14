@@ -152,22 +152,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule {
 
     // Create an ArrayAdapter from List
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(currentActivity,
-            android.R.layout.select_dialog_item, titles){
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent){
-                /// Get the Item from ListView
-                View view = super.getView(position, convertView, parent);
-
-                TextView textView = (TextView) view.findViewById(android.R.id.text1);
-
-                float textSize=(float)16.0;
-                textView.setTextSize(textSize);
-
-                // Return the view
-                return view;
-            }
-        };
-
+            android.R.layout.select_dialog_item, titles);
     AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
     if (options.hasKey("title") && options.getString("title") != null && !options.getString("title").isEmpty()) {
       builder.setTitle(options.getString("title"));
@@ -356,7 +341,6 @@ public class ImagePickerModule extends ReactContextBaseJavaModule {
     }
   }
 
-  @Override
   public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
     //System.out.println("GRAB onActivityResult init");
     //robustness code
