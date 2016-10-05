@@ -22,6 +22,9 @@ import android.widget.ArrayAdapter;
 import android.webkit.MimeTypeMap;
 import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -152,7 +155,22 @@ public class ImagePickerModule extends ReactContextBaseJavaModule {
 
     // Create an ArrayAdapter from List
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(currentActivity,
-            android.R.layout.select_dialog_item, titles);
+            android.R.layout.select_dialog_item, titles){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                /// Get the Item from ListView
+                View view = super.getView(position, convertView, parent);
+
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+
+                float textSize=(float)16.0;
+                textView.setTextSize(textSize);
+
+                // Return the view
+                return view;
+            }
+        };
+
     AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity);
     if (options.hasKey("title") && options.getString("title") != null && !options.getString("title").isEmpty()) {
       builder.setTitle(options.getString("title"));
